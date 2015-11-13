@@ -1,3 +1,6 @@
 function flight_model()
-blahblahblah
+
+% Constants
+g = 9.8; % m / s^2
+
 end
