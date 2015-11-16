@@ -1,9 +1,10 @@
-function flight_model()
+function flight_model(init_velocity, init_angle)
     % tennis ball constants
     m = 0.145; % kg
     r = 0.07468; % m
     A = pi * r ^ 2; % cross sectional area, m
     C_D = 0.5;
+    COR = 0.83; % coefficient of restitution for hard courts
     
     % Environment constants
     air_density = 1.2; % kg / m^3
@@ -12,17 +13,49 @@ function flight_model()
     % Run the main function
     main()
     
-    function main()
-    [Time, Y] = ode45(@change, [0, 10], [0, 3, velocity_vector(init_speed, init_angle)]);
-    % Plot the trajectory of the ball, x vs y
-    figure(1)
-    plot(Y(:, 1), Y(:, 2))
-    figure(2)
-    % Plot the velocity vs time
-    hold on
-    plot(Time, Y(:, 3), 'r')
-    plot(Time, Y(:, 4), 'b')
-    legend('v_x', 'v_y')
+    function main()   
+        simulate()
+    end
+    
+    function simulate()
+        options = odeset('Events', @event_function);
+        % Modeling the flight of the ball before the first bounce, after it
+        % ileaves the racquet
+        [Time1, Y1, TE1, YE1] = ode45(@change, [0, 100], [0, 3, ...
+            velocity_vector(init_velocity, init_angle)], ...
+            options);
+        x_bounce = YE1(1);
+        y_bounce = YE1(2);
+        vx_bounce = YE1(3);
+        vy_bounce = YE1(4);
+        
+        % Model the flight after the bounce by reversing the y velocity
+        [Time2, Y2, TE2, YE2] = ode45(@change, [TE1, 100], [x_bounce, y_bounce, ...
+            vx_bounce, -vy_bounce * COR], ...
+            options);
+        % Plot the trajectory of the ball, x vs y
+        figure(1)
+        hold on
+        plot(Y1(:, 1), Y1(:, 2))
+        plot(Y2(:, 1), Y2(:, 2))
+        figure(2)
+        % Plot the velocity vs time
+        hold on
+        plot(Time1, Y1(:, 3), 'r')
+        plot(Time1, Y1(:, 4), 'b')
+        plot(Time2, Y2(:, 3), 'r')
+        plot(Time2, Y2(:, 4), 'b')
+        legend('v_x', 'v_y')
+        
+        % Trigger a bounce event when the ball hits the ground
+        function [value, isterminal, direction] = event_function(t, params)
+           value = params(2); % When the ball is at the ground, y = 0, bounce
+           isterminal = 1; % stop function as soon as this event is reached
+           direction = 0; % At any zero (when value = 0) consider this event, not 
+                          % only when the function is either increasing (1) or 
+                          % decreasing (-1)
+        end
+
     end
 
     function res = velocity_vector(speed, angle)
