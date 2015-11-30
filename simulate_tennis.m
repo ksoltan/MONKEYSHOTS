@@ -1,7 +1,6 @@
 % Simulate the ball's flight path for two bounces, beginning with the
 % moment right after it hits the racquet
 function simulate_tennis(init_pos, init_speed, init_angle)
-hold on
     % Initial flight from the racquet
     [t1, params, fin_time, fin_params] = flight(0, init_pos, ...
         velocity_vector(init_speed, init_angle));
@@ -39,12 +38,17 @@ hold on
     for i = 1 : length(H)
        N(i) = 11.89; 
     end
+    hold on
     plot(N, H)
     figure(2)
+    hold on
     plot(T, VX)
     figure(3)
+    hold on
     plot(T, VY)
-    
+    figure(4)
+    hold on
+    plot(VX, VY)
 
     function res = velocity_vector(speed, angle)
         % Takes the magnitude of the velocity and the angle at which the
