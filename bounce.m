@@ -42,7 +42,7 @@ function [time, results, fin_time, fin_params] = bounce(init_time, init_pos, ini
             end
             disp(value)
             isterminal = 1; % stop function as soon as this event is reached
-            direction = 1;
+            direction = 0;
         end
 
     end

@@ -1,0 +1,65 @@
+% Simulate the ball's flight path for two bounces, beginning with the
+% moment right after it hits the racquet
+function simulate_tennis(init_pos, init_speed, init_angle)
+    % Initial flight from the racquet
+    [t1, params, fin_time, fin_params] = flight(0, init_pos, ...
+        velocity_vector(init_speed, init_angle));
+    X = params(:, 1);
+    Y = params(:, 2);
+    VX = params(:, 3);
+    VY = params(:, 4);
+    T = t1;
+    num_bounces = ;
+    is_bounce = 1;
+    count = 1;
+    disp(fin_params)
+    while count < num_bounces
+        if is_bounce
+            fprintf('Should begin bounce\n')
+            is_bounce = 0;
+            disp(fin_params(1 : 2))
+           [t, params, fin_t, fin_p] = bounce(fin_time, ...
+               fin_params(1 : 2), fin_params(3 : 4));
+           count = count + 1;
+           fprintf('bounced\n')
+        else
+            fprintf('Should begin flight\n')
+            is_bounce = 1;
+            fprintf('Change to next will be bounce, fin_params: %d\n', fin_params)
+           [t, params, fin_t, fin_p] = flight(fin_time, ...
+               fin_params(1 : 2), fin_params(3 : 4));
+           fprintf('flight\n')
+        end
+        fin_time = fin_t;
+        fin_params = fin_p
+        X = [X ; params(:, 1)];
+        Y = [Y ; params(:, 2)];
+        VX = [VX; params(:, 3)];
+        VY = [VY; params(:, 4)];
+        T = [T; t];
+        fprintf('Updated all\n')
+    end
+    disp(X)
+    disp(Y)
+    figure(1)
+    hold on
+    plot(X, Y)
+    %draw net
+    H = 0 : 0.01 : 1.07;
+    for i = 1 : length(H)
+       N(i) = 11.89; 
+    end
+    plot(N, H)
+    figure(2)
+    plot(T, VX)
+    figure(3)
+    plot(T, VY)
+    
+
+    function res = velocity_vector(speed, angle)
+        % Takes the magnitude of the velocity and the angle at which the
+        % object is moving to the horizontal
+        % Returns a velocity vector in the form (vx, vy)
+        res = [speed * cosd(angle), speed * sind(angle)];
+    end
+end
