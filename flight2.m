@@ -1,57 +1,41 @@
-function flight_model(init_velocity, init_angle)
-    % tennis ball constants
-    m = 0.145; % kg
-    r = 0.07468; % m
-    A = pi * r ^ 2; % cross sectional area, m
-    C_D = 0.5;
+function [t, params, fin_time, fin_params] = flight2(init_time, init_pos, init_velocity)
+% Function takes in initial speed and angle of a tennis ball and returns the
+% final parameters of the ball when it is within one radius of the ground,
+% aka when the bottom of the ball touches the ground.
 
+    % Tennis ball constants
+    m = 0.058; % kg
+    r = 0.07 / 2; % m
+    A = pi * r^2; % cross sectional area, m
+    CD = 0.5;
+    
     % Environment constants
-    air_density = 1.2; % kg / m^3
+    p = 1.2; % kg / m^3
     g = 9.8; % m / s^2
     
     % Run the main function
-    main()
-    
-    function main()   
-        simulate()
-    end
-    
-    function simulate()
-        options = odeset('Events', @event_function);
-        % Modeling the flight of the ball before the first bounce, after it
-        % ileaves the racquet
-        [Time1, Y1, TE1, YE1] = ode45(@change, [0, 100], [0, 3, ...
-            velocity_vector(init_velocity, init_angle)], ...
-            options);
+    [t, params, fin_time, fin_params] = simulate();
 
+    % Returns the final params of the ball
+    function [t, params, fin_time, fin_params] = simulate()
+        options = odeset('Events', @event_function);
+        [t, params, fin_time, fin_params] = ode45(@change, [init_time, init_time + 10], ...
+            [init_pos, init_velocity], options);
+        plot(params(:, 1), params(:, 2))
         
-        % Model the flight after the bounce by reversing the y velocity
-        [Time2, Y2, TE2, YE2] = ode45(@change, [TE1, 100], [x_bounce, y_bounce, ...
-            vx_bounce, -vy_bounce * COR], ...
-            options);
-        % Plot the trajectory of the ball, x vs y
-        figure(1)
-        hold on
-        plot(Y1(:, 1), Y1(:, 2))
-        plot(Y2(:, 1), Y2(:, 2))
-        figure(2)
-        % Plot the velocity vs time
-        hold on
-        plot(Time1, Y1(:, 3), 'r')
-        plot(Time1, Y1(:, 4), 'b')
-        plot(Time2, Y2(:, 3), 'r')
-        plot(Time2, Y2(:, 4), 'b')
-        legend('v_x', 'v_y')
-        
-        % Trigger a bounce event when the ball hits the ground
+        % Trigger event when the ball hits the ground, defined as its
+        % center of gravity being 1 radius above the ground
         function [value, isterminal, direction] = event_function(t, params)
-           value = params(2); % When the ball is at the ground, y = 0, bounce
+           % To trigger, the value should equal 0.
+           value = params(2);
+           if params(2) <= r
+               value = 0;
+           end
            isterminal = 1; % stop function as soon as this event is reached
            direction = 0; % At any zero (when value = 0) consider this event, not 
                           % only when the function is either increasing (1) or 
                           % decreasing (-1)
-        end
-
+        end 
     end
 
     function res = velocity_vector(speed, angle)
@@ -84,7 +68,7 @@ function flight_model(init_velocity, init_angle)
        vy = V(2);
        % Force of drag
        v = sqrt(vx^2 + vy^2);
-       drag = -1/2 * C_D * A * air_density * v^2;
+       drag = -1/2 * CD * A * p * v^2;
        % Force of gravity
        gravity = -m * g;
        
@@ -92,7 +76,6 @@ function flight_model(init_velocity, init_angle)
        unit_vx = vx / v;
        % Unit velocity vector that points in the vertical direction
        unit_vy = vy / v;
-       
        % Total horizontal acceleration is just the horizontal component of
        % drag. Must be divided by m because F = ma, a = F/m
        dvxdt = (drag * unit_vx) / m;
