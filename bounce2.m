@@ -1,5 +1,6 @@
 %% The init_velocity should have a v_y negative, because the ball is flying downwards!
-function [t, params, fin_time, fin_params] = bounce2(init_time, init_pos, init_velocity)
+% Spin: TOPSPIN WILL BE POSITIVE, BACKSPIN IS NEGATIVE VALUE in rad/s
+function [t, params, fin_time, fin_params] = bounce2(init_time, init_pos, init_velocity, init_spin)
     % Tennis ball constants
     m = 0.058; % kg
     r = 0.07 / 2; % m
@@ -14,8 +15,9 @@ function [t, params, fin_time, fin_params] = bounce2(init_time, init_pos, init_v
     function [t, params, fin_time, fin_params] = simulate()
         options = odeset('Events', @event_function);
         [t, params, fin_time, fin_params] = ode45(@change, [init_time, init_time + 2], ...
-            [init_pos, init_velocity], options);
-        plot(params(:, 1), params(:, 2))
+            [init_pos, init_velocity, init_spin], options);
+        %figure(2)
+        %comet(params(:, 1), params(:, 2))
         
         % Trigger event when the ball is leaving the ground, defined as its
         % center of gravity being 1 radius above the ground
@@ -37,15 +39,21 @@ function [t, params, fin_time, fin_params] = bounce2(init_time, init_pos, init_v
        Pos = params(1 : 2);
        % velocity is a vector. (vx, vy)
        V = params(3 : 4);
+       spin = params(5);
        % change in position is velocity
        dPosdt = V;
        % change in velocity is acceleration
-       dVdt = acceleration(t, Pos, V);
+       dVdt = acceleration(t, Pos, V, spin);
        res = [dPosdt; dVdt];
+       %fprintf('Spin: %d, dwdt: % d\n Vx: %d, Vbottom: %d\n\n', spin, dVdt(3), V(1), spin * r)
     end
 
-    function res = acceleration(t, Pos, V)
+    function res = acceleration(t, Pos, V, spin)
         y = Pos(2); % distance of top of the ball from ground
+        v_x = V(1);
+        % if positive spin makes the ball rotate forward, the bottom of the
+        % ball is going opposite the spin direction
+        v_bot = -spin * r;
         spring = -k * (y + r); % Force of spring goes opposite the velocity of the ball
         % Force of gravity
         gravity = -m * g;
@@ -53,10 +61,19 @@ function [t, params, fin_time, fin_params] = bounce2(init_time, init_pos, init_v
        % the acceleration due to gravity
        dvydt = (gravity + spring) / m;
        normal_force = m * (g + dvydt);
-       friction = - COF * normal_force;
+       dir_f = 0;
+       if v_x + v_bot > 0
+           dir_f = -1;
+       else if v_x + v_bot < 0
+               dir_f = 1;
+           end
+       end
+       friction = dir_f * COF * normal_force;
        % Total horizontal acceleration is slowed down by friction
-       dvxdt = friction; 
-       res = [dvxdt; dvydt];
+       dvxdt = friction / m;
+       I = 2 * m / 5 * ((r^5 - r_inner^5) / (r^3 - r_inner^3));
+       dwdt = r * friction / I;
+       res = [dvxdt; dvydt; dwdt];
     end
 
 end

@@ -1,4 +1,4 @@
-function [t, params, fin_time, fin_params] = flight2(init_time, init_pos, init_velocity)
+function [t, params, fin_time, fin_params] = flight2(init_time, init_pos, init_velocity, init_spin)
 % Function takes in initial speed and angle of a tennis ball and returns the
 % final parameters of the ball when it is within one radius of the ground,
 % aka when the bottom of the ball touches the ground.
@@ -20,8 +20,8 @@ function [t, params, fin_time, fin_params] = flight2(init_time, init_pos, init_v
     function [t, params, fin_time, fin_params] = simulate()
         options = odeset('Events', @event_function);
         [t, params, fin_time, fin_params] = ode45(@change, [init_time, init_time + 10], ...
-            [init_pos, init_velocity], options);
-        plot(params(:, 1), params(:, 2))
+            [init_pos, init_velocity, init_spin], options);
+        %plot(params(:, 1), params(:, 2))
         
         % Trigger event when the ball hits the ground, defined as its
         % center of gravity being 1 radius above the ground
@@ -38,28 +38,20 @@ function [t, params, fin_time, fin_params] = flight2(init_time, init_pos, init_v
         end 
     end
 
-    function res = velocity_vector(speed, angle)
-        % Takes the magnitude of the velocity and the angle at which the
-        % object is moving to the horizontal
-        % Returns a velocity vector in the form (vx, vy)
-        % Angle is in degrees, therefore must be converted to radians
-        angle_rad = angle * pi / 180;
-        res = [speed * cos(angle_rad), speed * sin(angle_rad)];
-    end
-
     function res = change(t, params)
        % Position is a vector. (x, y)
        Pos = params(1 : 2);
        % velocity is a vector. (vx, vy)
        V = params(3 : 4);
+       spin = params(5);
        % change in position is velocity
        dPosdt = V;
        % change in velocity is acceleration
-       dVdt = acceleration(t, Pos, V);
+       dVdt = acceleration(t, Pos, V, spin);
        res = [dPosdt; dVdt];
     end
 
-    function res = acceleration(t, Pos, V)
+    function res = acceleration(t, Pos, V, spin)
         % Drag is dependent only on velocity, therefore position and time
         % are not needed. But just in case we included an acceleration
         % source dependent upon them, t and pos are passed into the
@@ -82,8 +74,8 @@ function [t, params, fin_time, fin_params] = flight2(init_time, init_pos, init_v
        % Total vertical acceleration is the vertical component of drag and
        % the acceleration due to gravity
        dvydt = (gravity + drag * unit_vy) / m;
-       
-       res = [dvxdt; dvydt];
+       dwdt = 0;
+       res = [dvxdt; dvydt; dwdt];
     end
     
 end
