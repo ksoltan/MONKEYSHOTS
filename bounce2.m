@@ -9,39 +9,41 @@ function [t, params, fin_time, fin_params] = bounce2(init_time, init_pos, init_v
     k = 14.3 * 1e3; % N / m
     g = -9.8; % m / s^2
     COF = 0.7;
-    COR = 0.7;
-    reversed_direction = 0; % to multiply the resitution coeff by velocity at moment ball begins to rise
-    
-   fprintf('Initial velocity: %d, %d Initial spin: %d\n', init_velocity(1), init_velocity(2), init_spin)
+    COR = 0.8;
     [t, params, fin_time, fin_params] = simulate();
     
         % Returns the final params of the ball
     function [t, params, fin_time, fin_params] = simulate()
         options = odeset('Events', @event_function);
-        [t, params, fin_time, fin_params] = ode45(@change, [init_time, init_time + 10], ...
+        [t, params, fin_time, fin_params] = ode45(@change, [init_time, init_time + 2], ...
             [init_pos, init_velocity, init_spin], options);
-        fin_params(3) = fin_params(3) * COR;
+                fin_params(3) = fin_params(3) * COR;
         fin_params(4) = fin_params(4) * COR;
 %        fprintf('final velocity: %d, %d\n', fin_params(3), fin_params(4))
         subplot(3, 2, 1); plot(params(:, 1), params(:, 2))
+        hold on
         xlabel('X pos')
         ylabel('Y pos')
         subplot(3, 2, 2); plot(t, params(:, 5))
-        xlabel('Lime')
+        hold on
+        xlabel('Time')
         ylabel('Spin')
         subplot(3, 2, 3); plot(t, params(:, 3))
-        xlabel('Lime')
+        hold on
+        xlabel('Time')
         ylabel('Vx')
         subplot(3, 2, 4); plot(t, params(:, 4))
-        xlabel('Lime')
+        hold on
+        xlabel('Time')
         ylabel('Vy')
         subplot(3, 2, 5); plot(t, params(:, 5) * -r)
-        xlabel('Lime')
+        hold on
+        xlabel('Time')
         ylabel('Vbottom')
         subplot(3, 2, 6); plot(t, params(:, 3) + params(:, 5) * -r, 'r')
-        xlabel('Lime')
-        ylabel('Vbottom')
-                
+        hold on
+        xlabel('Time')
+        ylabel('Vbottom + Vx')
         %figure(2)
         %comet(params(:, 1), params(:, 2))
         
@@ -50,7 +52,7 @@ function [t, params, fin_time, fin_params] = bounce2(init_time, init_pos, init_v
         function [value, isterminal, direction] = event_function(t, params)
            % To trigger, the value should equal 0.
            value = params(2);
-           if params(2) >= r %|| (reversed_direction && params(4) < 0)
+           if params(2) >= r
                value = 0;
            end
            isterminal = 1; % stop function as soon as this event is reached
@@ -65,12 +67,6 @@ function [t, params, fin_time, fin_params] = bounce2(init_time, init_pos, init_v
        Pos = params(1 : 2);
        % velocity is a vector. (vx, vy)
        V = params(3 : 4);
-       if V(2) >= 0
-           reversed_direction = 1;
-       end
-%        if reversed_direction
-%           V(2) = V(2) * COR; 
-%        end
        spin = params(5);
        % change in position is velocity
        dPosdt = V;
@@ -86,25 +82,25 @@ function [t, params, fin_time, fin_params] = bounce2(init_time, init_pos, init_v
         % if positive spin makes the ball rotate forward, the bottom of the
         % ball is going opposite the spin direction
         v_bot = -spin * r;
-        spring = -k * (y + r); % Force of spring goes opposite the velocity of the ball
+        spring = -k * (y - r); % Force of spring goes opposite the velocity of the ball
         % Force of gravity
-        gravity = -m * g;
+        gravity = m * g;
        % Total vertical acceleration is the vertical component of drag and
        % the acceleration due to gravity
        dvydt = (gravity + spring) / m;
-       normal_force = m * (g + dvydt);
-       dir_f = 0;
-       if v_x + v_bot == 0
-           dir_f = 0;
-       else
-           dir_f = (v_x + v_bot) / abs(v_x + v_bot);
-       end
-
+       normal_force = spring;
+       dir_f = -sign(v_x + v_bot);
+%        if v_x + v_bot > 0
+%            dir_f = -1;
+%        else if v_x + v_bot < 0
+%                dir_f = 1;
+%            end
+%        end
        friction = dir_f * COF * normal_force;
        % Total horizontal acceleration is slowed down by friction
        dvxdt = friction / m;
        I = 2 * m / 5 * ((r^5 - r_inner^5) / (r^3 - r_inner^3));
-       dwdt = r * friction / I;
+       dwdt = -r * friction / I;
        res = [dvxdt; dvydt; dwdt];
     end
 
