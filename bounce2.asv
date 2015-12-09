@@ -38,7 +38,7 @@ function [t, params, fin_time, fin_params] = bounce2(init_time, init_pos, init_v
         subplot(3, 2, 5); plot(t, params(:, 5) * -r)
         xlabel('Lime')
         ylabel('Vbottom')
-        subplot(3, 2, 6); plot(t, params(:, 3) + params(:, 5) * -r, 'r')
+        subplot(3, 2, 6); plot(t, params(:, 3) + params(:, 5) * r, 'r')
         xlabel('Lime')
         ylabel('Vbottom')
                 
@@ -97,7 +97,7 @@ function [t, params, fin_time, fin_params] = bounce2(init_time, init_pos, init_v
        if v_x + v_bot == 0
            dir_f = 0;
        else
-           dir_f = (v_x + v_bot) / abs(v_x + v_bot);
+           dir_f = (v_x + v_bot) / abs(v_x + v_bot)
        end
 
        friction = dir_f * COF * normal_force;

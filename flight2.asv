@@ -20,7 +20,7 @@ function [t, params, fin_time, fin_params] = flight2(init_time, init_pos, init_v
     function [t, params, fin_time, fin_params] = simulate()
         options = odeset('Events', @event_function);
         [t, params, fin_time, fin_params] = ode45(@change, [init_time, init_time + 10], ...
-            [init_pos, init_velocity, init_spin], options);
+            [init_pos, init_velocity, init_spin], options)
         %plot(params(:, 1), params(:, 2))
         
         % Trigger event when the ball hits the ground, defined as its
@@ -32,7 +32,7 @@ function [t, params, fin_time, fin_params] = flight2(init_time, init_pos, init_v
                value = 0;
            end
            isterminal = 1; % stop function as soon as this event is reached
-           direction = -1; % At any zero (when value = 0) consider this event, not 
+           direction = 0; % At any zero (when value = 0) consider this event, not 
                           % only when the function is either increasing (1) or 
                           % decreasing (-1)
         end 
@@ -71,13 +71,12 @@ function [t, params, fin_time, fin_params] = flight2(init_time, init_pos, init_v
        % Unit velocity vector that points in the vertical direction
        unit_vy = vy / v;
        
-%        % To include lift, must also include the torque on the ball
-%        theta = pi / 2;
-%        rot_matrix = [cos(theta), -sin(theta); sin(theta), cos(theta)];
-%        lift_dir = rot_matrix * [unit_vx; unit_vy]; 
-%        lift = 16 / 3 * pi^2 * r^3 * spin * p * v * CL * lift_dir;
-%        lift_x = lift(1);
-%        lift_y = lift(2);
+       theta = pi / 2;
+       rot_matrix = [cos(theta), -sin(theta); sin(theta), cos(theta)];
+       lift_dir = rot_matrix * [unit_vx; unit_vy]; 
+       lift = 16 / 3 * pi^2 * r^3 * spin * p * v * CL * lift_dir;
+       lift_x = lift(1);
+       lift_y = lift(2);
        % Total horizontal acceleration is the horizontal component of
        % drag and the opposite of the vertical component of lift (lift acts
        % perpendicular to the direction). Must divide by m to get
