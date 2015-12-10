@@ -20,32 +20,31 @@ function [t, params, fin_time, fin_params] = bounce2(init_time, init_pos, init_v
                 fin_params(3) = fin_params(3) * COR;
         fin_params(4) = fin_params(4) * COR;
 %        fprintf('final velocity: %d, %d\n', fin_params(3), fin_params(4))
-%         figure(2)
 %         subplot(3, 2, 1); plot(params(:, 1), params(:, 2))
 %         hold on
-%         xlabel('X pos')
-%         ylabel('Y pos')
-%         subplot(3, 2, 2); plot(t, params(:, 5))
+%         xlabel('X pos', 'FontName', 'Times', 'FontSize', 20)
+%         ylabel('Y pos', 'FontName', 'Times', 'FontSize', 20)
+%         subplot(2, 2, 1); plot(t, params(:, 3))
 %         hold on
-%         xlabel('Time')
-%         ylabel('Spin')
-%         subplot(3, 2, 3); plot(t, params(:, 3))
+%         xlabel('Time', 'FontName', 'Times', 'FontSize', 20)
+%         ylabel('Vx', 'FontName', 'Times', 'FontSize', 20)
+%         subplot(2, 2, 2); plot(t, params(:, 4))
 %         hold on
-%         xlabel('Time')
-%         ylabel('Vx')
-%         subplot(3, 2, 4); plot(t, params(:, 4))
+%         xlabel('Time', 'FontName', 'Times', 'FontSize', 20)
+%         ylabel('Vy', 'FontName', 'Times', 'FontSize', 20)
+%         subplot(2, 2, 3); plot(t, params(:, 5) * -r)
 %         hold on
-%         xlabel('Time')
-%         ylabel('Vy')
-%         subplot(3, 2, 5); plot(t, params(:, 5) * -r)
+%         xlabel('Time', 'FontName', 'Times', 'FontSize', 20)
+%         ylabel('Vbottom', 'FontName', 'Times', 'FontSize', 20)
+%         subplot(2, 2, 4); plot(t, params(:, 5))
 %         hold on
-%         xlabel('Time')
-%         ylabel('Vbottom')
+%         xlabel('Time', 'FontName', 'Times', 'FontSize', 20)
+        ylabel('Spin', 'FontName', 'Times', 'FontSize', 20)
 %         subplot(3, 2, 6); plot(t, params(:, 3) + params(:, 5) * -r, 'r')
 %         hold on
 %         xlabel('Time')
-%         ylabel('Vbottom + Vx')
-        
+%         ylabel('Vbottom + Vx', 'FontName', 'Times', 'FontSize', 20)
+%         
         %comet(params(:, 1), params(:, 2))
         
         % Trigger event when the ball is leaving the ground, defined as its

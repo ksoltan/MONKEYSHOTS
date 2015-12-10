@@ -11,7 +11,7 @@ hold on
     VX = params(:, 3);
     VY = params(:, 4);
     W = params(:, 5);
-    num_bounces = 3;
+    num_bounces = 2;
     is_bounce = 1;
     count = 0;
 
@@ -27,6 +27,7 @@ hold on
             is_bounce = 1;
            [t, params, fin_t, fin_p] = flight2(fin_time, ...
                fin_params(1 : 2), fin_params(3 : 4), fin_params(5))
+           count = count + 1;
         end
         fin_time = fin_t;
         fin_params = fin_p;
@@ -42,14 +43,10 @@ hold on
     %draw net
     H = 0 : 0.01 : 1.07;
     for i = 1 : length(H)
-       N(i) = 11.89; 
+       N(i) = 6.40; 
     end
-%    plot(N, H)
-%     figure(2)
-%     plot(T, VX)
-%     figure(3)
-%     plot(T, VY)
-    
+   plot(N, H)
+
     function res = velocity_vector(speed, angle)
         % Takes the magnitude of the velocity and the angle at which the
         % object is moving to the horizontal
