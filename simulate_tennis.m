@@ -20,13 +20,13 @@ hold on
           fprintf('BOUNCE\n')
            is_bounce = 0;
            [t, params, fin_t, fin_p] = bounce2(fin_time, ...
-               fin_params(1 : 2), fin_params(3 : 4), fin_params(5));
+               fin_params(1 : 2), fin_params(3 : 4), fin_params(5))
            count = count + 1;
         else
            fprintf('FLY\n')
             is_bounce = 1;
            [t, params, fin_t, fin_p] = flight2(fin_time, ...
-               fin_params(1 : 2), fin_params(3 : 4), fin_params(5));
+               fin_params(1 : 2), fin_params(3 : 4), fin_params(5))
         end
         fin_time = fin_t;
         fin_params = fin_p;

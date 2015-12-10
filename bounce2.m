@@ -20,31 +20,32 @@ function [t, params, fin_time, fin_params] = bounce2(init_time, init_pos, init_v
                 fin_params(3) = fin_params(3) * COR;
         fin_params(4) = fin_params(4) * COR;
 %        fprintf('final velocity: %d, %d\n', fin_params(3), fin_params(4))
-        subplot(3, 2, 1); plot(params(:, 1), params(:, 2))
-        hold on
-        xlabel('X pos')
-        ylabel('Y pos')
-        subplot(3, 2, 2); plot(t, params(:, 5))
-        hold on
-        xlabel('Time')
-        ylabel('Spin')
-        subplot(3, 2, 3); plot(t, params(:, 3))
-        hold on
-        xlabel('Time')
-        ylabel('Vx')
-        subplot(3, 2, 4); plot(t, params(:, 4))
-        hold on
-        xlabel('Time')
-        ylabel('Vy')
-        subplot(3, 2, 5); plot(t, params(:, 5) * -r)
-        hold on
-        xlabel('Time')
-        ylabel('Vbottom')
-        subplot(3, 2, 6); plot(t, params(:, 3) + params(:, 5) * -r, 'r')
-        hold on
-        xlabel('Time')
-        ylabel('Vbottom + Vx')
-        %figure(2)
+%         figure(2)
+%         subplot(3, 2, 1); plot(params(:, 1), params(:, 2))
+%         hold on
+%         xlabel('X pos')
+%         ylabel('Y pos')
+%         subplot(3, 2, 2); plot(t, params(:, 5))
+%         hold on
+%         xlabel('Time')
+%         ylabel('Spin')
+%         subplot(3, 2, 3); plot(t, params(:, 3))
+%         hold on
+%         xlabel('Time')
+%         ylabel('Vx')
+%         subplot(3, 2, 4); plot(t, params(:, 4))
+%         hold on
+%         xlabel('Time')
+%         ylabel('Vy')
+%         subplot(3, 2, 5); plot(t, params(:, 5) * -r)
+%         hold on
+%         xlabel('Time')
+%         ylabel('Vbottom')
+%         subplot(3, 2, 6); plot(t, params(:, 3) + params(:, 5) * -r, 'r')
+%         hold on
+%         xlabel('Time')
+%         ylabel('Vbottom + Vx')
+        
         %comet(params(:, 1), params(:, 2))
         
         % Trigger event when the ball is leaving the ground, defined as its
@@ -52,7 +53,7 @@ function [t, params, fin_time, fin_params] = bounce2(init_time, init_pos, init_v
         function [value, isterminal, direction] = event_function(t, params)
            % To trigger, the value should equal 0.
            value = params(2);
-           if params(2) >= r
+           if params(2) <= r
                value = 0;
            end
            isterminal = 1; % stop function as soon as this event is reached
